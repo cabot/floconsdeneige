@@ -3,7 +3,7 @@
     "type": "phpbb-extension",
     "description": "Faites tomber des flocons de neige sur votre forum !",
     "homepage": "http://cabotweb.fr",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "keywords": [
         "phpbb",
         "extension"
