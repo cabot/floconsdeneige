@@ -99,6 +99,6 @@ function winter_snow() {
     }
 }
 
-$(window).on( "load", function() {
+$(window).on("load", function() {
     sushiNeige();
 });
