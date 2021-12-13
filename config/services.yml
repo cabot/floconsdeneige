@@ -2,8 +2,8 @@ services:
     cabot.floconsdeneige.listener:
         class: cabot\floconsdeneige\event\listener
         arguments:
-            - @request
-            - @template
-            - @user
+            - '@request'
+            - '@template'
+            - '@user'
         tags:
             - { name: event.listener }
