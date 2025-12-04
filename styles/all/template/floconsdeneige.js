@@ -1,104 +1,129 @@
-/*************************************************************************
- * Original Author:	DaVidU
- * Website:	http://www.coloreatuforo.com/tutoriales-f15/topic608.html (NB : site offline)
- * Modified by:	cabot
- * Website:	http://forums.phpbb-fr.com/cabot-u109637/
- *************************************************************************/
+// Options
+const speed = 0.6; // Speed factor (e.g. 0.1 for very slow, 2 for fast)
+const particles = 20; // Number of particles
+const particleClassName = 'leflocon'; // CSS class name of particles
+const particleDirection = 'down'; // 'up' to go up, 'down' to go down
 
-var speed = 20;
-var flakes = 20;
-var swide, shigh;
-var dx = new Array();
-var xp = new Array();
-var yp = new Array();
-var am = new Array();
-var sty = new Array();
+class ParticleAnimation {
+	constructor() {
+		this.swide = 0;
+		this.shigh = 0;
+		this.particlesData = [];
+		this.particlesElements = [];
+		this.container = null;
+		this.init();
+	}
 
-function sushiNeige() {
-    if (document.getElementById) {
-        var f, b;
-        b = document.createElement("div");
-        b.style.position = "absolute";
-        b.setAttribute("id", "bod");
-        document.body.appendChild(b);
-        set_scroll();
-        set_width();
+	/**
+	 * Initializes the particle animation.
+	 */
+	init() {
+		// Do not start the animation based on user preferences (Accessibility)
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (prefersReducedMotion) {
+			return;
+		}
 
-        for (var i = 0; i < flakes; i++) {
-            dx[i] = 0;
-            am[i] = Math.random() * 20;
-            xp[i] = am[i] + Math.random() * (swide - 2 * am[i] - 25);
-            yp[i] = Math.random() * shigh;
-            sty[i] = 0.75 + 1.25 * Math.random();
-            f = document.createElement("span");
-            f.setAttribute("id", "flk" + i);
-			f.setAttribute("class", "leflocon");
-            f.style.zIndex = i;
-            f.style.top = yp[i] + "px";
-            f.style.left = xp[i] + "px";
-            b.appendChild(f);
-        }
+		// Otherwise, let's go
+		this.container = document.createElement("div");
+		this.container.style.position = "absolute";
+		document.body.appendChild(this.container);
+		this.updateScroll();
+		this.updateSize();
 
-        setInterval("winter_snow()", speed);
-    }
+		for (let i = 0; i < particles; i++) {
+			const x = Math.random() * (this.swide - 40) + 20;
+			const y = Math.random() * this.shigh;
+			const amplitude = Math.random() * 20;
+			const speedY = (0.75 + 1.25 * Math.random()) * speed;
+			const phase = 0;
+
+			this.particlesData.push({ x, y, amplitude, speedY, phase });
+
+			const element = document.createElement("span");
+			element.className = particleClassName;
+			element.style.zIndex = i;
+			element.style.top = y + "px";
+			element.style.left = x + "px";
+			this.particlesElements.push(element);
+			this.container.appendChild(element);
+		}
+
+		this.animate();
+	}
+
+	/**
+	 * Updates the window size.
+	 */
+	updateSize() {
+		this.swide = window.innerWidth;
+		this.shigh = window.innerHeight;
+	}
+
+	/**
+	 * Updates the container position during scrolling.
+	 */
+	updateScroll() {
+		const sdown = window.pageYOffset;
+		const sleft = window.pageXOffset;
+		this.container.style.top = sdown + "px";
+		this.container.style.left = sleft + "px";
+	}
+
+	/**
+	 * Resets a particle off-screen.
+	 */
+	resetParticle(particle, direction) {
+		particle.x = Math.random() * (this.swide - 40) + 20;
+		if (direction === 'up') {
+			particle.y = this.shigh;
+		} else if (direction === 'down') {
+			particle.y = 0;
+		}
+		particle.speedY = (0.75 + 1.25 * Math.random()) * speed;
+	}
+
+	/**
+	 * Animates the particles.
+	 */
+	animate = () => {
+		this.updateParticles();
+		requestAnimationFrame(this.animate);
+	}
+
+	/**
+	 * Updates the positions of the particles.
+	 */
+	updateParticles() {
+		for (let i = 0; i < particles; i++) {
+			const particle = this.particlesData[i];
+			const element = this.particlesElements[i];
+
+			if (particleDirection === 'up') {
+				particle.y -= particle.speedY;
+				if (particle.y < 30) {
+					this.resetParticle(particle, 'up');
+				}
+			} else if (particleDirection === 'down') {
+				particle.y += particle.speedY;
+				if (particle.y > this.shigh) {
+					this.resetParticle(particle, 'down');
+				}
+			}
+
+			particle.phase += (0.02 + Math.random() / 10) * speed;
+			element.style.top = particle.y + "px";
+			element.style.left = (particle.x + particle.amplitude * Math.sin(particle.phase)) + "px";
+		}
+	}
 }
 
-window.onresize = set_width;
+// Event handling
+window.onresize = () => particleAnimation.updateSize();
+window.onscroll = () => particleAnimation.updateScroll();
 
-function set_width() {
-    if (document.documentElement && document.documentElement.clientWidth) {
-        swide = document.documentElement.clientWidth;
-        shigh = document.documentElement.clientHeight;
-    } else if (typeof (self.innerHeight) == "number") {
-        swide = self.innerWidth;
-        shigh = self.innerHeight;
-    } else if (document.body.clientWidth) {
-        swide = document.body.clientWidth;
-        shigh = document.body.clientHeight;
-    } else {
-        swide = 800;
-        shigh = 600
-    }
-}
-
-window.onscroll = set_scroll;
-
-function set_scroll() {
-    var sleft, sdown;
-
-    if (typeof (self.pageYOffset) == "number") {
-        sdown = self.pageYOffset;
-        sleft = self.pageXOffset;
-    } else if (document.body.scrollTop || document.body.scrollLeft) {
-        sdown = document.body.scrollTop;
-        sleft = document.body.scrollLeft;
-    } else if (document.documentElement && (document.documentElement.scrollTop || document.documentElement.scrollLeft)) {
-        sleft = document.documentElement.scrollLeft;
-        sdown = document.documentElement.scrollTop;
-    } else {
-        sdown = 0;
-        sleft = 0;
-    }
-
-    document.getElementById("bod").style.top = sdown + "px";
-    document.getElementById("bod").style.left = sleft + "px";
-}
-
-function winter_snow() {
-    for (var i = 0; i < flakes; i++) {
-        yp[i] += sty[i];
-        if (yp[i] > shigh - 30) {
-            xp[i] = am[i] + Math.random() * (swide - 2 * am[i] - 25);
-            yp[i] = 0;
-            sty[i] = 0.75 + 1.25 * Math.random();
-        }
-
-        dx[i] += 0.02 + Math.random() / 10;
-        document.getElementById("flk" + i).style.top = yp[i] + "px";
-        document.getElementById("flk" + i).style.left = (xp[i] + am[i] * Math.sin(dx[i])) + "px";
-    }
-}
-
-$(window).on("load", function() {
-    sushiNeige();
+// Initialization
+let particleAnimation;
+window.addEventListener('load', () => {
+	particleAnimation = new ParticleAnimation();
 });
