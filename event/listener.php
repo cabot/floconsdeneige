@@ -1,11 +1,11 @@
 <?php
 /**
-*
-* @package phpBB Extension - Flocons de neige
-* @copyright (c) cabot
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
-*
-*/
+ *
+ * @package phpBB Extension - Flocons de neige
+ * @copyright (c) cabot
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ *
+ */
 
 namespace cabot\floconsdeneige\event;
 
@@ -58,13 +58,13 @@ class listener implements EventSubscriberInterface
 		$this->user->add_lang_ext('cabot/floconsdeneige', 'ucp');
 
 		$floconsdeneige = $this->request->variable('floconsdeneige', (bool) $this->user->data['user_floconsdeneige']);
-		$event['data'] = array_merge($event['data'], array(
+		$event['data'] = array_merge($event['data'], [
 			'floconsdeneige'	=> $floconsdeneige,
-		));
+		]);
 
-		$this->template->assign_vars(array(
+		$this->template->assign_vars([
 			'S_FLOCONSDENEIGE'	=> $floconsdeneige,
-		));
+		]);
 	}
 
 	/**
@@ -72,18 +72,18 @@ class listener implements EventSubscriberInterface
 	*/
 	public function ucp_prefs_data_update($event)
 	{
-		$event['sql_ary'] = array_merge($event['sql_ary'], array(
-			'user_floconsdeneige'		=> $event['data']['floconsdeneige'],
-		));
+		$event['sql_ary'] = array_merge($event['sql_ary'], [
+			'user_floconsdeneige'	=> $event['data']['floconsdeneige'],
+		]);
 	}
 
 	/**
 	* Include CSS and JS in template according to radio checked in UCP
 	*/
-	public function include_files_floconsdeneige($event)
+	public function include_files_floconsdeneige()
 	{
-		$this->template->assign_vars(array(
+		$this->template->assign_vars([
 			'S_DISPLAY_FLOCONSDENEIGE'	=> $this->user->data['user_floconsdeneige'],
-		));
-	}	
+		]);
+	}
 }
